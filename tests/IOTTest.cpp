@@ -1,44 +1,47 @@
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
-#include <fstream>
-#include <cstdio>
-#include "matrixIO.hpp"
 #include <Eigen/Dense>
+#include <boost/test/unit_test.hpp>
+#include <cstdio>
+#include <stdexcept>
+#include "matrixIO.hpp"
 
-using namespace Eigen;
+BOOST_AUTO_TEST_SUITE(MatrixIOTests)
 
-struct IOFixture {
-    std::string filename;
+BOOST_AUTO_TEST_CASE(OpenDataReadsMatrix)
+{
+  const int matrixSize = 3;
 
-    IOFixture() {
-        filename = "test_matrix.csv";
-        std::ofstream outfile(filename);
-        outfile << "1.0, 2.0\n";
-        outfile << "3.0, 4.0\n";
-        outfile.close();
-    }
+  Eigen::MatrixXd expected(matrixSize, matrixSize);
+  expected << 0.680375, 0.59688, -0.329554,
+      -0.211234, 0.823295, 0.536459,
+      0.566198, -0.604897, -0.444451;
 
-    ~IOFixture() {
-        std::remove(filename.c_str());
-    }
-};
+  Eigen::MatrixXd result = matrixIO::openData("../data/m3.csv", matrixSize);
 
-BOOST_FIXTURE_TEST_SUITE(IOTests, IOFixture)
+  BOOST_TEST(result.rows() == expected.rows());
+  BOOST_TEST(result.cols() == expected.cols());
+  BOOST_TEST(result.isApprox(expected, 1e-6));
+}
 
-BOOST_AUTO_TEST_CASE(OpenDataTest) {
-    int rows = 2;
-    int cols = 2;
-    
-    MatrixXd expected(rows, cols);
-    expected << 1.0, 2.0,
-                3.0, 4.0;
+BOOST_AUTO_TEST_CASE(OpenDataThrowsOnWrongSize)
+{
+  BOOST_CHECK_THROW(matrixIO::openData("../data/m3.csv", 4), std::runtime_error);
+}
 
-    MatrixXd result = matrixIO::openData(filename, rows, cols);
+BOOST_AUTO_TEST_CASE(SaveDataAndOpenDataRoundtrip)
+{
+  const char *fileName = "test_matrix_io.csv";
 
-    BOOST_TEST(result.rows() == rows);
-    BOOST_TEST(result.cols() == cols);
-    
-    BOOST_TEST((result - expected).norm() == 0.0, boost::test_tools::tolerance(1e-9));
+  Eigen::MatrixXd expected(2, 2);
+  expected << 1.25, -2.5,
+      3.75, 4.0;
+
+  matrixIO::saveData(fileName, expected);
+  Eigen::MatrixXd result = matrixIO::openData(fileName, 2);
+
+  BOOST_TEST(result.isApprox(expected, 1e-12));
+
+  std::remove(fileName);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
