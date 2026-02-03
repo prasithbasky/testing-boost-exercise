@@ -3,9 +3,9 @@
 #include <boost/test/unit_test.hpp>
 #include <cstdio>
 #include <stdexcept>
-#include "IOTests.hpp"
+#include "matrixIO.hpp"
 
-BOOST_AUTO_TEST_SUITE(IOTestsTests)
+BOOST_AUTO_TEST_SUITE(IOTests)
 
 BOOST_AUTO_TEST_CASE(OpenDataReadsMatrix)
 {
