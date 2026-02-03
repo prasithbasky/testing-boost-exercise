@@ -3,9 +3,9 @@
 #include <boost/test/unit_test.hpp>
 #include <cstdio>
 #include <stdexcept>
-#include "matrixIO.hpp"
+#include "IOTests.hpp"
 
-BOOST_AUTO_TEST_SUITE(MatrixIOTests)
+BOOST_AUTO_TEST_SUITE(IOTestsTests)
 
 BOOST_AUTO_TEST_CASE(OpenDataReadsMatrix)
 {
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(OpenDataReadsMatrix)
       -0.211234, 0.823295, 0.536459,
       0.566198, -0.604897, -0.444451;
 
-  Eigen::MatrixXd result = matrixIO::openData("../data/m3.csv", matrixSize);
+  Eigen::MatrixXd result = IOTests::openData("../data/m3.csv", matrixSize);
 
   BOOST_TEST(result.rows() == expected.rows());
   BOOST_TEST(result.cols() == expected.cols());
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(OpenDataReadsMatrix)
 
 BOOST_AUTO_TEST_CASE(OpenDataThrowsOnWrongSize)
 {
-  BOOST_CHECK_THROW(matrixIO::openData("../data/m3.csv", 4), std::runtime_error);
+  BOOST_CHECK_THROW(IOTests::openData("../data/m3.csv", 4), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(SaveDataAndOpenDataRoundtrip)
@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE(SaveDataAndOpenDataRoundtrip)
   expected << 1.25, -2.5,
       3.75, 4.0;
 
-  matrixIO::saveData(fileName, expected);
-  Eigen::MatrixXd result = matrixIO::openData(fileName, 2);
+  IOTests::saveData(fileName, expected);
+  Eigen::MatrixXd result = IOTests::openData(fileName, 2);
 
   BOOST_TEST(result.isApprox(expected, 1e-12));
 
